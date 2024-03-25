@@ -9,6 +9,7 @@ import React from 'react';
 // @ts-expect-error
 export interface NavLinkProps extends RouterNavLinkProps, BaseLinkProps {}
 
+// @ts-expect-error
 export const NavLink: React.FC<NavLinkProps> = React.forwardRef(
   ({ to, children, ...props }, ref) => (
     <BaseLink {...(props as any)} asChild>

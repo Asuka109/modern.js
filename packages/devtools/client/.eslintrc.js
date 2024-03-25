@@ -2,5 +2,5 @@
 module.exports = {
   root: true,
   extends: ['@modern-js'],
-  ignorePatterns: ['plugins/', 'tests/'],
+  ignorePatterns: ['plugins/', 'tests/', 'panda.config.ts'],
 };

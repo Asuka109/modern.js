@@ -2,11 +2,13 @@
   "extends": "@modern-js/tsconfig/base",
   "compilerOptions": {
     "declaration": false,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "baseUrl": "./",
+    "noEmit": true,
     "outDir": "dist",
     "paths": {
       "@/*": ["./src/*"],
+      "~/*": ["./src/*"],
       "@shared/*": ["./shared/*"]
     }
   },
@@ -16,6 +18,9 @@
     "exports",
     "shared",
     "config",
-    "modern.config.ts"
-  ]
+    "modern.config.ts",
+    "panda.config.ts",
+    "styled-system"
+  ],
+  "exclude": ["**/node_modules"]
 }

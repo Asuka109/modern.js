@@ -70,6 +70,7 @@ export default defineConfig<'rspack'>({
   tools: {
     postcss: (config, { addPlugins }) => {
       addPlugins(require('postcss-custom-media'));
+      addPlugins(require('@pandacss/dev/postcss'));
     },
     bundlerChain(chain) {
       chain.output.uniqueName('modernjsDevtools');
