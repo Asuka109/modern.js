@@ -2,7 +2,6 @@ import http from 'http';
 import path from 'path';
 import assert from 'assert';
 import { URL } from 'url';
-import _ from '@modern-js/utils/lodash';
 import { ProxyDetail } from '@modern-js/types';
 import { chokidar, fs, FSWatcher, getPort, logger } from '@modern-js/utils';
 import { Context, Hono } from 'hono';
@@ -111,54 +110,20 @@ export const devtoolsPlugin = (
             '@modern-js/devtools-client/sw-proxy',
           );
 
-          // Inject options to client.
-          const clientOptions = _.pick(ctx, ['def', 'endpoint', 'dataSource']);
-          // Keep resource query always existing.
-          Object.assign(clientOptions, { __keep: true });
-          const serializedOptions = JSON.stringify(clientOptions);
-          const tags: AppTools['normalizedConfig']['html']['tags'] = [
-            {
-              tag: 'script',
-              children: `window.__MODERN_JS_DEVTOOLS_OPTIONS__ = ${serializedOptions};`,
-              head: true,
-              append: false,
-            },
-          ];
-
-          const styles: string[] = [];
-          const manifest = require('@modern-js/devtools-client/manifest');
-          // Inject JavaScript chunks to client.
-          for (const src of manifest.routeAssets.mount.assets) {
-            assert(typeof src === 'string');
-            if (src.endsWith('.js')) {
-              tags.push({
-                tag: 'script',
-                attrs: { src },
-                head: true,
-                append: false,
-              });
-            } else if (src.endsWith('.css')) {
-              styles.push(src);
-            }
-          }
-          // Inject CSS chunks to client inside of template to avoid polluting global.
-          tags.push({
-            tag: 'template',
-            attrs: { id: '_modern_js_devtools_styles' },
-            append: true,
-            head: false,
-            children: styles
-              .map(src => `<link rel="stylesheet" href="${src}">`)
-              .join(''),
-          });
+          const bootstrapEntry = require.resolve('./bootstrap');
 
           return {
             builderPlugins: [rpc.builderPlugin],
-            source: {},
+            source: {
+              preEntry: [bootstrapEntry],
+              include: [bootstrapEntry],
+              globalVars: {
+                'process.env.LOAD_MODERNJS_DEVTOOLS': null,
+              },
+            },
             output: {
               copy: [{ from: swProxyEntry, to: 'public' }],
             },
-            html: { tags },
             tools: {
               devServer: {
                 proxy: {
@@ -228,6 +193,10 @@ const setupHttpServer = async () => {
   app.use(
     '/static/*',
     // Workaround for https://github.com/honojs/node-server/blob/dd0e0cd160b0b8f18abbcb28c5f5c39b72105d98/src/serve-static.ts#L56
+    serveStatic({ root: path.relative(process.cwd(), clientServeDir) }),
+  );
+  app.use(
+    '/routes-manifest.json',
     serveStatic({ root: path.relative(process.cwd(), clientServeDir) }),
   );
 

@@ -11,7 +11,7 @@ declare global {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+const setupDevtools = async () => {
   const outer = document.createElement('div');
   outer.className = '_modern_js_devtools_container';
   document.body.appendChild(outer);
@@ -23,6 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
     throw new Error('template not found');
   }
   shadow.appendChild(template.content);
+  template.content.childNodes.forEach(node => {
+    node instanceof HTMLElement && shadow.appendChild(node);
+  });
 
   const container = document.createElement('div');
   container.classList.add(
@@ -35,4 +38,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const options = window.__MODERN_JS_DEVTOOLS_OPTIONS__;
   const root = createRoot(container);
   root.render(<DevtoolsCapsule {...options} />);
-});
+};
+
+if (
+  document.readyState === 'interactive' ||
+  document.readyState === 'complete'
+) {
+  setupDevtools();
+} else {
+  document.addEventListener('DOMContentLoaded', setupDevtools, { once: true });
+}

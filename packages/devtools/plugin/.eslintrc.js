@@ -11,7 +11,7 @@ module.exports = {
       // require.resolve('./tests/tsconfig.json'),
     ],
   },
-  ignorePatterns: ['runtime.mjs'],
+  ignorePatterns: ['runtime.mjs', 'src/bootstrap.ts'],
   rules: {
     curly: 'off',
   },
